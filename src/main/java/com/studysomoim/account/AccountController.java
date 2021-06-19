@@ -84,7 +84,7 @@ public class AccountController {
         return "redirect:/";
     }
 
-    @GetMapping("/profile/{nickanme}")
+    @GetMapping("/profile/{nickname}")
     public String viewProfile(@PathVariable String nickname, Model model, @CurrentUser Account account) {
         Account byNickname = accountRepository.findByNickname(nickname);
         if (nickname == null) {

@@ -36,6 +36,8 @@ public class Account {
 
     private String liveAround;  // varchar(255)
 
+    private String location;
+
     @Lob @Basic(fetch = FetchType.EAGER)
     private String profileImage;
 
