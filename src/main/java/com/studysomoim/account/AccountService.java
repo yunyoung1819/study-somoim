@@ -4,11 +4,8 @@ import com.studysomoim.domain.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AccountService implements UserDetailsService {
 
@@ -28,7 +26,6 @@ public class AccountService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 //  private final AuthenticationManager authenticationManager;
 
-    @Transactional
     public Account processNewAccount(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
         newAccount.generateEmailCheckToken();
@@ -66,11 +63,9 @@ public class AccountService implements UserDetailsService {
                 account.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_USER")));
         SecurityContextHolder.getContext().setAuthentication(token);
-//        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-//                username, password);
-//        Authentication authentication = authenticationManager.authenticate(token);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
         Account account = accountRepository.findByEmail(emailOrNickname);
@@ -83,5 +78,10 @@ public class AccountService implements UserDetailsService {
         }
 
         return new UserAccount(account);
+    }
+
+    public void completeSignUp(Account account) {
+        account.completeSignUp();
+        login(account);
     }
 }
